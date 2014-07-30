@@ -1,0 +1,52 @@
+General LibRaw Process
+	1. open_file()		libraw_cxx.cpp
+	2. unpack()		libraw_cxx.cpp
+	3. unpack_thumb()	libraw_cxx.cpp
+
+Open file has the most intersting stuff though
+
+FNC LibRaw::open_file(const char *fname, INT64 max_buf_size)
+1. LibRaw_file_datastream(fname)
+	I think all this really does is to open the file
+	data stream. Nothing really curcial/important
+2. int ret = open_datastream(stream)
+	This is where the magic happens. I'm pretty sure
+	of it
+FNC LibRaw::open_datastream(LibRaw_abstract_datastream *stream)
+1. This function gets passed the result of the 
+   LibRaw_file_datastream(fname)
+2. identify();
+	This happens in dcraw/dcraw.c
+	There's a lot that's happening in there. What I think
+	happens is it gets basic data about the raw file:
+	
+	raw_height
+	raw_width
+	load_raw	This appears to be a function pointer
+	write_thumb
+
+	load_raw is set depending on the type of camera
+	For example:
+	if (!memcmp(head, "NOKIARAW", 8)) {
+		.....blah blah....
+		load_raw = &CLASS eight_bit_load_raw break;
+	}
+
+	inside of each of these "specialized" raw loaders is
+	where most of the raw loading (obviously) happens
+	Inside of:
+	
+	FNC void CLASS eight_bit_load_raw()
+	1. Declares a pixel pointer which is a line of pixels
+		pixel = (uchar *)calloc(raw_width, sizeof *pixel)
+	2. For every row and column, it first does
+		fread(pixel, 1, raw_width, ifp)
+		Which I think just loads the next line into the pixel
+		pointer
+	3. Then for every pixel, it does
+		RAW(row,col) = curve[pixel[col]];
+		RAW is under a define:
+		#define RAW(row,col) \
+			raw_image[(row)*raw_width+(col)]
+3. First checks if load_raw (set from identify) is equal
+   to LibRaw::x3f_load_raw() which is a custom load raw?
