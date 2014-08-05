@@ -50,3 +50,8 @@ FNC LibRaw::open_datastream(LibRaw_abstract_datastream *stream)
 			raw_image[(row)*raw_width+(col)]
 3. First checks if load_raw (set from identify) is equal
    to LibRaw::x3f_load_raw() which is a custom load raw?
+
+ALTERNATIVE PATH TO FOLLOW
+
+
+Just follow the path in dcraw.cc easy peasy
